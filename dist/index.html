@@ -94,8 +94,8 @@
       </div>
 
       <div class="metrics shell" aria-label="主要実績">
-        <div class="metric"><b>80,000<small>req/sec</small></b><p>認証付き参加イベントの<br>最大瞬間受信数</p></div>
-        <div class="metric"><b>20<small>秒</small></b><p>受付締め切りから<br>全件の集計確定まで</p></div>
+        <div class="metric"><b>80,000<small>req/s</small></b><p>実運用での最大瞬間受信数<br>本番同等の負荷試験：50万req/s</p></div>
+        <div class="metric"><b>4<small>秒</small></b><p>受付締め切りから<br>全件の集計確定まで（実質）</p></div>
         <div class="metric"><b>25<small>年</small></b><p>バックエンドとネットワーク<br>基盤に携わった経験</p></div>
       </div>
     </section>
@@ -208,13 +208,15 @@
           <div class="work-index">CASE 01</div>
           <div class="work-main">
             <p class="work-type">民放キー局｜視聴者参加型番組</p>
-            <h3>秒間8万件の参加を受け切り、<br>締切から20秒で集計を確定。</h3>
+            <h3>秒間8万件の参加を受け切り、<br>締切から実質4秒で集計を確定。</h3>
             <p>参加イベントの受信、認証・契約検証、集計と正誤判定、結果参照API、管理画面を設計。開発から放送当日の運用まで担当しました。</p>
+            <p>実運用では最大8万req/sを受信。本番同等の負荷試験では50万req/sを確認しました。</p>
             <div class="chips"><span>Rust</span><span>Pub/Sub</span><span>Redis</span><span>Fastly</span><span>Next.js</span><span>GCP</span></div>
           </div>
           <dl class="work-results">
-            <div><dt>PEAK</dt><dd>80,000<small>req/sec</small></dd></div>
-            <div><dt>FINALIZE</dt><dd>20<small>sec</small></dd></div>
+            <div><dt>実運用のピーク</dt><dd>80,000<small>req/s</small></dd></div>
+            <div><dt>本番同等の負荷試験</dt><dd>500,000<small>req/s</small></dd></div>
+            <div><dt>集計確定まで（実質）</dt><dd>4<small>秒</small></dd></div>
             <div><dt>SCOPE</dt><dd class="scope">設計・開発・当日運用</dd></div>
           </dl>
         </article>
