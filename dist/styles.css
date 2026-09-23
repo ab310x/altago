@@ -161,6 +161,12 @@ button { color: inherit; font: inherit; }
 .principle-grid h3 { font-size: 1.2rem; line-height: 1.55; }
 .principle-grid p { margin-top: 14px; color: rgba(255, 255, 255, .58); font-size: .86rem; }
 
+.faq-list { border-top: 1px solid var(--ink); }
+.faq-list article { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 48px; padding: 28px 0; border-bottom: 1px solid var(--line); }
+.faq-list h3 { display: grid; grid-template-columns: 34px 1fr; font-size: 1.02rem; line-height: 1.7; }
+.faq-list h3::before { content: "Q"; color: var(--green); font-family: var(--display); font-size: .78rem; font-weight: 700; line-height: 2.2; }
+.faq-list p { color: var(--muted); font-size: .9rem; }
+
 .company-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 72px; align-items: start; }
 .mission { position: sticky; top: 116px; padding: 42px; color: var(--white); background: var(--green); border-radius: 2px 48px 2px 2px; }
 .mission small { font-family: var(--display); font-size: .72rem; letter-spacing: .12em; opacity: .7; }
@@ -234,6 +240,8 @@ footer { padding: 38px 0; border-top: 1px solid var(--line); }
   .work-list .chips { justify-content: flex-start; }
   .principle-grid { grid-template-columns: 1fr; }
   .principle-grid article { min-height: 220px; }
+  .faq-list article { grid-template-columns: 1fr; gap: 10px; padding: 24px 0; }
+  .faq-list p { padding-left: 34px; }
   .company-grid { grid-template-columns: 1fr; gap: 48px; }
   .mission { position: static; }
   .contact-panel { align-items: flex-start; flex-direction: column; padding: 52px 44px; }

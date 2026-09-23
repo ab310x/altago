@@ -5,17 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#071712">
   <meta name="color-scheme" content="light">
-  <title>株式会社ALTAGO｜一瞬に集中するアクセスを、受け切るバックエンド</title>
-  <meta name="description" content="株式会社ALTAGOは、番組連動の視聴者参加型システムなど、数十秒で秒間数万リクエストに跳ね上がるバースト負荷を専門とするバックエンド開発会社です。受信・集計・当日運用まで一貫して設計します。">
+  <title>株式会社ALTAGO｜アクセス集中を受け切るバックエンド開発</title>
+  <meta name="description" content="株式会社ALTAGO（アルタゴ）は、テレビ番組連動の投票・クイズなど、数十秒で秒間数万リクエストに跳ね上がるアクセス集中を専門とするバックエンド開発会社です。負荷試験、リアルタイム集計、放送当日の運用まで一貫して担当します。">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <link rel="canonical" href="https://altago.jp/">
-  <meta property="og:title" content="株式会社ALTAGO｜一瞬に集中するアクセスを、受け切るバックエンド">
-  <meta property="og:description" content="番組連動の視聴者参加型システムなど、バースト負荷を前提としたリアルタイム集計基盤の設計・開発・当日運用。">
+  <meta property="og:title" content="株式会社ALTAGO｜アクセス集中を受け切るバックエンド開発">
+  <meta property="og:description" content="番組連動の投票・クイズなど、秒間数万リクエストのアクセス集中を受け切るリアルタイム集計基盤の設計・開発・当日運用。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://altago.jp/">
   <meta property="og:site_name" content="株式会社ALTAGO">
   <meta property="og:locale" content="ja_JP">
-  <meta name="twitter:card" content="summary">
-  <link rel="icon" href="logo1.jpg" type="image/jpeg">
+  <meta property="og:image" content="https://altago.jp/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="株式会社ALTAGO｜その一瞬に、全部が来る。バーストトラフィック専門のバックエンド開発">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -24,11 +31,82 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "株式会社ALTAGO",
-    "url": "https://altago.jp/",
-    "email": "info@altago.jp",
-    "description": "バーストトラフィックを前提としたリアルタイム集計基盤の設計・開発・運用を行う技術会社"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://altago.jp/#organization",
+        "name": "株式会社ALTAGO",
+        "alternateName": ["ALTAGO", "ALTAGO INC.", "株式会社アルタゴ", "アルタゴ"],
+        "url": "https://altago.jp/",
+        "logo": { "@type": "ImageObject", "url": "https://altago.jp/logo1.jpg", "width": 1254, "height": 1254 },
+        "image": "https://altago.jp/og-image.png",
+        "email": "info@altago.jp",
+        "slogan": "一瞬に集中するアクセスを、受け切るバックエンド。",
+        "description": "番組連動の視聴者参加型システムなど、数十秒で秒間数万リクエストに跳ね上がるバースト負荷（アクセス集中）を専門とするバックエンド開発会社。受信・集計・結果配信の設計・開発から、負荷試験、放送当日の運用まで一貫して担当する。",
+        "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "email": "info@altago.jp", "availableLanguage": "ja" },
+        "knowsAbout": ["バーストトラフィック", "アクセス集中対策", "高負荷システム", "リアルタイム集計", "視聴者参加型システム", "投票システム", "負荷試験", "負荷分散", "CDN", "Rust", "Fastly", "Google Cloud"],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "事業内容",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "リアルタイム集計・視聴者参加型システム", "description": "投票、クイズの正誤判定、ポイント配分など。イベント受信から集計、締め切り制御、結果配信までを設計・開発し、放送当日の運用まで担当。" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "大規模負荷分散・インフラ設計", "description": "アクセス集中を前提に、CDN、ロードバランサ、キャッシュ、キューを構成。負荷試験で限界と復旧手順まで確認。" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "ソフトウェア受託開発", "description": "WebシステムとAPIを中心に、要件整理から設計、開発、保守まで。" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI活用・業務効率化", "description": "学習済みモデルの選定や調整、AIエージェントを組み込んだ業務フローの構築と定着支援。" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "スマートフォンアプリ開発", "description": "iOS・Androidアプリの企画・設計・実装。" } }
+          ]
+        }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://altago.jp/#abe",
+        "name": "阿部 哲士",
+        "jobTitle": "代表取締役",
+        "worksFor": { "@id": "https://altago.jp/#organization" },
+        "hasCredential": { "@type": "EducationalOccupationalCredential", "credentialCategory": "degree", "name": "博士（工学）" },
+        "description": "2001年よりCDN事業者にてGSLB DNS、独自キャッシュサーバ、大規模広告配信システムの開発・運用とネットワーク運用部門を担当。2023年に独立し、放送・新聞・AI領域のバックエンド開発を手がける。",
+        "knowsAbout": ["CDN", "GSLB DNS", "キャッシュサーバ", "大規模広告配信システム", "ネットワーク運用", "バックエンド開発"]
+      },
+      {
+        "@type": "Person",
+        "@id": "https://altago.jp/#nakagawa",
+        "name": "中川 奏子",
+        "jobTitle": "代表取締役",
+        "worksFor": { "@id": "https://altago.jp/#organization" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://altago.jp/#website",
+        "url": "https://altago.jp/",
+        "name": "株式会社ALTAGO",
+        "inLanguage": "ja",
+        "publisher": { "@id": "https://altago.jp/#organization" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://altago.jp/#webpage",
+        "url": "https://altago.jp/",
+        "name": "株式会社ALTAGO｜アクセス集中を受け切るバックエンド開発",
+        "inLanguage": "ja",
+        "isPartOf": { "@id": "https://altago.jp/#website" },
+        "about": { "@id": "https://altago.jp/#organization" },
+        "primaryImageOfPage": { "@type": "ImageObject", "url": "https://altago.jp/og-image.png", "width": 1200, "height": 630 }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://altago.jp/#faq",
+        "isPartOf": { "@id": "https://altago.jp/#webpage" },
+        "inLanguage": "ja",
+        "mainEntity": [
+          { "@type": "Question", "name": "どのような案件を得意としていますか？", "acceptedAnswer": { "@type": "Answer", "text": "テレビ番組連動の投票やクイズなど、平常時はほとんどアクセスがなく、数十秒だけ秒間数万リクエストに跳ね上がる「バースト負荷」を受けるシステムです。イベントの受信から集計、締め切り制御、結果配信までの設計・開発と、放送当日の運用まで一貫して担当します。" } },
+          { "@type": "Question", "name": "どのくらいの規模のアクセス集中に対応した実績がありますか？", "acceptedAnswer": { "@type": "Answer", "text": "民放キー局の視聴者参加型番組で、認証付きの参加イベントを最大で秒間80,000件受信し、受付締め切りから20秒で全件の集計を確定しました。CDN基盤の内製開発では、広告配信で秒間500,000リクエストのピークを処理しました。" } },
+          { "@type": "Question", "name": "サーバーを増やすだけでは対応できないのですか？", "acceptedAnswer": { "@type": "Answer", "text": "平常時はほぼゼロで、一瞬だけ最大になる負荷は、サーバーを増やすだけでは捌けません。事前に積んでおくもの、捨ててよいもの、絶対に落とせないものを最初に切り分けます。受信・集計・参照を分離し、受理したイベントはキューとログに保存して、途中で止まっても同じ結果に戻せる構成にします。" } },
+          { "@type": "Question", "name": "設計レビューや負荷試験だけを依頼できますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。設計レビューや負荷試験のみのご依頼にも対応します。想定ピークを超える負荷を実際に流し、限界と壊れ方、復旧手順までを確認します。" } },
+          { "@type": "Question", "name": "放送当日の運用も任せられますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。設計と実装を担当した本人が本番運用に入り、受付の開始・締め切り・集計確定まで、番組の進行に合わせて判断します。" } },
+          { "@type": "Question", "name": "放送以外の開発も相談できますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。大規模負荷分散・インフラ設計、WebシステムやAPIの受託開発、AI活用・業務効率化、スマートフォンアプリ開発にも対応します。新聞社の紙面Viewer・記事検索基盤や、AIカメラの映像解析バックエンドの実績があります。" } }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -38,7 +116,7 @@
   <header class="site-header" id="header">
     <div class="nav-shell">
       <a class="brand" href="#top" aria-label="株式会社ALTAGO トップへ">
-        <span class="brand-mark" aria-hidden="true"><img src="logo1.jpg" alt="" width="1254" height="1254"></span>
+        <span class="brand-mark" aria-hidden="true"><img src="logo-sm.jpg" alt="" width="188" height="188"></span>
         <span class="brand-name">ALTAGO</span>
       </a>
       <nav class="site-nav" id="navigation" aria-label="メインナビゲーション">
@@ -60,7 +138,7 @@
         <div class="hero-copy">
           <p class="eyebrow">バーストトラフィック専門のバックエンド開発</p>
           <h1 id="hero-title">その一瞬に、<span>全部が来る。</span></h1>
-          <p class="hero-lead">番組の1コーナー、受付開始の直後。平常時はほとんど流れていないのに、数十秒だけ秒間数万のリクエストが立ち上がります。ALTAGOは、この形の負荷を前提に、受信から集計、放送当日の運用までを設計します。</p>
+          <p class="hero-lead">番組の1コーナー、受付開始の直後。平常時はほとんど流れていないのに、数十秒だけ秒間数万のリクエストが立ち上がります。ALTAGOは、この形のアクセス集中を前提に、受信から集計、放送当日の運用までを設計します。</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#contact">案件について相談する</a>
             <a class="text-link" href="#strength">対応領域を見る<span aria-hidden="true">↓</span></a>
@@ -231,6 +309,23 @@
       </div>
     </section>
 
+    <section class="section section-white" id="faq" aria-labelledby="faq-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-label">FAQ</p>
+          <div><h2 id="faq-title">ご相談の前に、<br>よくある質問。</h2><p>対応できる案件の範囲、実績の規模、当日の体制についてまとめました。</p></div>
+        </div>
+        <div class="faq-list">
+          <article><h3>どのような案件を得意としていますか？</h3><p>テレビ番組連動の投票やクイズなど、平常時はほとんどアクセスがなく、数十秒だけ秒間数万リクエストに跳ね上がる「バースト負荷」を受けるシステムです。イベントの受信から集計、締め切り制御、結果配信までの設計・開発と、放送当日の運用まで一貫して担当します。</p></article>
+          <article><h3>どのくらいの規模のアクセス集中に対応した実績がありますか？</h3><p>民放キー局の視聴者参加型番組で、認証付きの参加イベントを最大で秒間80,000件受信し、受付締め切りから20秒で全件の集計を確定しました。CDN基盤の内製開発では、広告配信で秒間500,000リクエストのピークを処理しました。</p></article>
+          <article><h3>サーバーを増やすだけでは対応できないのですか？</h3><p>平常時はほぼゼロで、一瞬だけ最大になる負荷は、サーバーを増やすだけでは捌けません。事前に積んでおくもの、捨ててよいもの、絶対に落とせないものを最初に切り分けます。受信・集計・参照を分離し、受理したイベントはキューとログに保存して、途中で止まっても同じ結果に戻せる構成にします。</p></article>
+          <article><h3>設計レビューや負荷試験だけを依頼できますか？</h3><p>はい。設計レビューや負荷試験のみのご依頼にも対応します。想定ピークを超える負荷を実際に流し、限界と壊れ方、復旧手順までを確認します。</p></article>
+          <article><h3>放送当日の運用も任せられますか？</h3><p>はい。設計と実装を担当した本人が本番運用に入り、受付の開始・締め切り・集計確定まで、番組の進行に合わせて判断します。</p></article>
+          <article><h3>放送以外の開発も相談できますか？</h3><p>はい。大規模負荷分散・インフラ設計、WebシステムやAPIの受託開発、AI活用・業務効率化、スマートフォンアプリ開発にも対応します。新聞社の紙面Viewer・記事検索基盤や、AIカメラの映像解析バックエンドの実績があります。</p></article>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="company" aria-labelledby="company-title">
       <div class="shell">
         <div class="section-heading">
@@ -240,7 +335,7 @@
         <div class="company-grid">
           <div class="mission"><small>MISSION</small><p>技術と人の可能性をつなぎ、<br>より良い選択肢を社会に増やす。</p></div>
           <dl class="profile-table">
-            <div><dt>会社名</dt><dd>株式会社ALTAGO</dd></div>
+            <div><dt>会社名</dt><dd>株式会社ALTAGO（アルタゴ）</dd></div>
             <div><dt>代表取締役</dt><dd>阿部 哲士<br>中川 奏子</dd></div>
             <div><dt>資本金</dt><dd>300万円</dd></div>
             <div><dt>事業内容</dt><dd>リアルタイム集計基盤の設計・開発・運用／大規模負荷分散システムの設計／ソフトウェア受託開発／AI活用支援／スマートフォンアプリ開発</dd></div>
@@ -268,7 +363,7 @@
   <footer>
     <div class="shell footer-inner">
       <div><p class="footer-brand">ALTAGO INC.</p><p>一瞬に集中するアクセスを、受け切るバックエンド。</p></div>
-      <nav aria-label="フッターナビゲーション"><a href="#strength">得意領域</a><a href="#services">事業内容</a><a href="#works">実績</a><a href="#company">会社概要</a></nav>
+      <nav aria-label="フッターナビゲーション"><a href="#strength">得意領域</a><a href="#services">事業内容</a><a href="#works">実績</a><a href="#faq">よくある質問</a><a href="#company">会社概要</a></nav>
       <p class="copyright">© 2026 ALTAGO INC.</p>
     </div>
   </footer>
