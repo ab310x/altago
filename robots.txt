@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /dist/
 
-Sitemap: https://altago.jp/sitemap.xml
+Sitemap: https://www.altago.jp/sitemap.xml
