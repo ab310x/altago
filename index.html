@@ -101,7 +101,7 @@
         "inLanguage": "ja",
         "mainEntity": [
           { "@type": "Question", "name": "どのような案件を得意としていますか？", "acceptedAnswer": { "@type": "Answer", "text": "チケットや限定商品の販売開始、キャンペーンの応募受付、テレビ番組の投票など、数十秒のうちに秒間数万リクエストへ跳ね上がる「バースト負荷」や、高い負荷が続くシステムです。イベントの受信から集計、締め切り制御、結果配信までの設計・開発と、本番当日の運用まで一貫して担当します。" } },
-          { "@type": "Question", "name": "どのくらいの規模のアクセス集中に対応した実績がありますか？", "acceptedAnswer": { "@type": "Answer", "text": "民放キー局の視聴者参加型番組では、認証付きの参加イベントの受信でベンチマーク時に秒間400,000件の処理性能を確認し、受付締め切りから20秒で全件の集計を確定しました。大規模なバックエンドAPIでは、秒間500,000リクエストのピークを処理した経験があります。" } },
+          { "@type": "Question", "name": "どのくらいの規模のアクセス集中に対応した実績がありますか？", "acceptedAnswer": { "@type": "Answer", "text": "民放キー局の視聴者参加型番組では、CDN・認証・Pub/Subを含む本番と同じ構成で秒間400,000件の処理性能を確認し、受付締め切りから20秒で全件の集計を確定しました。大規模なバックエンドAPIでは、秒間500,000リクエストのピークを処理した経験があります。" } },
           { "@type": "Question", "name": "サーバーを増やすだけでは対応できないのですか？", "acceptedAnswer": { "@type": "Answer", "text": "数十秒で最大に達する負荷は、サーバーを増やすだけでは捌けません。事前に積んでおくもの、捨ててよいもの、絶対に落とせないものを最初に切り分けます。受信・集計・参照を分離し、受理したイベントはキューとログに保存して、途中で止まっても同じ結果に戻せる構成にします。" } },
           { "@type": "Question", "name": "設計レビューや負荷試験だけを依頼できますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。設計レビューや負荷試験のみのご依頼にも対応します。想定ピークを超える負荷を実際に流し、限界と壊れ方、復旧手順までを確認します。" } },
           { "@type": "Question", "name": "本番当日の運用も任せられますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。設計と実装を担当した本人が本番運用に入り、受付の開始・締め切り・集計確定まで、イベントの進行に合わせて判断します。" } },
@@ -150,7 +150,7 @@
         </div>
 
         <figure class="burst-panel" aria-labelledby="burst-caption">
-          <div class="panel-kicker"><span>BENCHMARK PEAK</span><b>400,000 req/sec</b></div>
+          <div class="panel-kicker"><span>END-TO-END PEAK</span><b>400,000 req/sec</b></div>
           <svg class="burst-chart" viewBox="0 0 680 270" role="img" aria-label="受付開始の直後にリクエスト数が急上昇し、受付終了後に元の水準へ戻る波形">
             <defs>
               <linearGradient id="burstFill" x1="0" y1="0" x2="0" y2="1">
@@ -176,7 +176,7 @@
       </div>
 
       <div class="metrics shell" aria-label="主要実績">
-        <div class="metric"><b>400,000<small>req/sec</small></b><p>認証付き参加イベントの<br>ベンチマーク時の受信性能</p></div>
+        <div class="metric"><b>400,000<small>req/sec</small></b><p>CDN・認証・キューを含む<br>エンドツーエンドの処理性能</p></div>
         <div class="metric"><b>20<small>秒</small></b><p>受付締め切りから<br>全件の集計確定まで</p></div>
         <div class="metric"><b>25<small>年</small></b><p>バックエンドとネットワーク<br>基盤に携わった経験</p></div>
       </div>
@@ -281,12 +281,12 @@
           <div class="work-index">CASE 01</div>
           <div class="work-main">
             <p class="work-type">民放キー局｜視聴者参加型番組</p>
-            <h3>ベンチマークで秒間40万件を処理し、<br>締切から20秒で集計を確定。</h3>
+            <h3>秒間40万件を受け切る基盤で、<br>締切から20秒で集計を確定。</h3>
             <p>参加イベントの受信、認証・契約検証、集計と正誤判定、結果参照API、管理画面を設計。開発から放送当日の運用まで担当しました。</p>
             <div class="chips"><span>Rust</span><span>Pub/Sub</span><span>Redis</span><span>Fastly</span><span>Next.js</span><span>GCP</span></div>
           </div>
           <dl class="work-results">
-            <div><dt>BENCHMARK</dt><dd>400,000<small>req/sec</small></dd></div>
+            <div><dt>THROUGHPUT</dt><dd>400,000<small>req/sec</small></dd></div>
             <div><dt>FINALIZE</dt><dd>20<small>sec</small></dd></div>
             <div><dt>SCOPE</dt><dd class="scope">設計・開発・当日運用</dd></div>
           </dl>
@@ -323,7 +323,7 @@
         </div>
         <div class="faq-list">
           <article><h3>どのような案件を得意としていますか？</h3><p>チケットや限定商品の販売開始、キャンペーンの応募受付、テレビ番組の投票など、数十秒のうちに秒間数万リクエストへ跳ね上がる「バースト負荷」や、高い負荷が続くシステムです。イベントの受信から集計、締め切り制御、結果配信までの設計・開発と、本番当日の運用まで一貫して担当します。</p></article>
-          <article><h3>どのくらいの規模のアクセス集中に対応した実績がありますか？</h3><p>民放キー局の視聴者参加型番組では、認証付きの参加イベントの受信でベンチマーク時に秒間400,000件の処理性能を確認し、受付締め切りから20秒で全件の集計を確定しました。大規模なバックエンドAPIでは、秒間500,000リクエストのピークを処理した経験があります。</p></article>
+          <article><h3>どのくらいの規模のアクセス集中に対応した実績がありますか？</h3><p>民放キー局の視聴者参加型番組では、CDN・認証・Pub/Subを含む本番と同じ構成で秒間400,000件の処理性能を確認し、受付締め切りから20秒で全件の集計を確定しました。大規模なバックエンドAPIでは、秒間500,000リクエストのピークを処理した経験があります。</p></article>
           <article><h3>サーバーを増やすだけでは対応できないのですか？</h3><p>数十秒で最大に達する負荷は、サーバーを増やすだけでは捌けません。事前に積んでおくもの、捨ててよいもの、絶対に落とせないものを最初に切り分けます。受信・集計・参照を分離し、受理したイベントはキューとログに保存して、途中で止まっても同じ結果に戻せる構成にします。</p></article>
           <article><h3>設計レビューや負荷試験だけを依頼できますか？</h3><p>はい。設計レビューや負荷試験のみのご依頼にも対応します。想定ピークを超える負荷を実際に流し、限界と壊れ方、復旧手順までを確認します。</p></article>
           <article><h3>本番当日の運用も任せられますか？</h3><p>はい。設計と実装を担当した本人が本番運用に入り、受付の開始・締め切り・集計確定まで、イベントの進行に合わせて判断します。</p></article>

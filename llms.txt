@@ -29,7 +29,7 @@
 
 守秘義務のため案件名と詳細仕様は非公開。
 
-- [民放キー局の視聴者参加型番組](https://www.altago.jp/#works): 認証付き参加イベントの受信でベンチマーク時 秒間400,000件の処理性能。受付締め切りから20秒で全件の集計を確定。受信、認証・契約検証、集計と正誤判定、結果参照API、管理画面の設計・開発・当日運用。技術: Rust, Pub/Sub, Redis, Fastly, Next.js, GCP
+- [民放キー局の視聴者参加型番組](https://www.altago.jp/#works): CDN・認証・Pub/Subを含むエンドツーエンドで秒間400,000件の処理性能。受付締め切りから20秒で全件の集計を確定。受信、認証・契約検証、集計と正誤判定、結果参照API、管理画面の設計・開発・当日運用。技術: Rust, Pub/Sub, Redis, Fastly, Next.js, GCP
 - [CDN基盤の内製開発](https://www.altago.jp/#works): GSLB DNS、独自キャッシュサーバ、CDNと連携する大規模バックエンドAPIをスクラッチで設計・開発・運用。バックエンドAPI ピーク 500,000 req/sec。技術: C / C++, Java, Ruby, BGP, Linux
 - [新聞社の紙面Viewer・記事検索基盤](https://www.altago.jp/#works): スマートフォン向け紙面Viewerのバックエンドと過去記事の高速検索基盤を設計・実装・運用。技術: Scala, Java, Elasticsearch, TypeScript
 - [AIカメラ・映像解析バックエンド](https://www.altago.jp/#works): RTMP映像を受信し、人流・滞留・通過人数を解析する基盤を構築。モデルの調整も担当。技術: Python, Rust, NVIDIA GPU, Fine-tuning
