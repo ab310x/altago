@@ -175,7 +175,6 @@ button { color: inherit; font: inherit; }
 .profile-table > div { display: grid; grid-template-columns: 130px 1fr; gap: 32px; padding: 23px 0; border-bottom: 1px solid var(--line); }
 .profile-table dt { color: var(--muted); font-size: .8rem; }
 .profile-table dd { font-weight: 500; }
-.profile-table > .profile-row-center { align-items: center; }
 .profile-table .profile-note { color: var(--ink-soft); font-size: .88rem; font-weight: 400; }
 
 .contact { padding: 40px 0 108px; }
