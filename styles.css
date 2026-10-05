@@ -156,6 +156,7 @@ button { color: inherit; font: inherit; }
 .card-title h3 { font-size: .93rem; line-height: 1.5; }
 .service-card > p { margin-top: 15px; color: var(--muted); font-size: .72rem; line-height: 1.85; }
 .service-card .card-link { align-self: flex-end; margin-top: auto; }
+.service-card-wide { grid-column: 1 / -1; min-height: 0; }
 
 .experience { padding-top: 80px; background: white; border-top: 1px solid var(--line-soft); }
 .experience-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 26px; }
