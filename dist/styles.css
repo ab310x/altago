@@ -223,6 +223,7 @@ button { color: inherit; font: inherit; }
 .profile-table > div { display: grid; grid-template-columns: 110px 1fr; gap: 28px; padding: 17px 0; border-bottom: 1px solid var(--line); }
 .profile-table dt { color: var(--muted); font-size: .72rem; }
 .profile-table dd { font-size: .81rem; font-weight: 500; }
+.profile-table > .profile-row-center { align-items: center; }
 
 .contact { padding: 38px 0; background: white; }
 .contact-panel { display: grid; grid-template-columns: 160px 1fr auto; align-items: center; gap: 52px; min-height: 116px; padding: 24px 30px; background: linear-gradient(90deg, #e6f4ed, #f0f7f2); border-radius: 10px; }
