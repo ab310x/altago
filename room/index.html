@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room Layout Viewer</title>
+<style>
+  :root {
+    --bg: #eceae6;
+    --panel: rgba(255,255,255,.92);
+    --text: #1f2328;
+    --muted: #6b7078;
+    --line: #d9d6d0;
+    --accent: #2f6fde;
+    --accent-weak: #e6eefc;
+    --danger: #c9372c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  #view { position: fixed; inset: 0; }
+  #view canvas { display: block; touch-action: none; }
+
+  .panel { position: fixed; background: var(--panel); backdrop-filter: blur(8px); border: 1px solid var(--line);
+    border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+
+  #toolbar { top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; flex-wrap: wrap;
+    justify-content: center; max-width: calc(100vw - 24px); }
+  #toolbar .sep { width: 1px; background: var(--line); margin: 2px 4px; }
+  button { font: inherit; border: 1px solid transparent; background: transparent; color: var(--text); padding: 5px 10px;
+    border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  button:hover { background: #f0eeea; }
+  button.on { background: var(--accent-weak); color: var(--accent); border-color: #c4d6f7; }
+  button:disabled { opacity: .35; cursor: default; background: transparent; }
+  button.danger { color: var(--danger); }
+  kbd { font: 11px ui-monospace, Menlo, monospace; color: var(--muted); margin-left: 4px; }
+
+  #side { top: 12px; left: 12px; bottom: 12px; width: 250px; display: flex; flex-direction: column; overflow: hidden; }
+  #side header { padding: 10px 12px 8px; border-bottom: 1px solid var(--line); }
+  #side h1 { font-size: 14px; margin: 0 0 6px; }
+  #search { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; background: #fff; }
+  #side .opts { padding: 6px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 2px; }
+  label.chk { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--muted); }
+  #list { overflow: auto; flex: 1; padding: 4px 0; }
+  .grp-title { padding: 8px 12px 2px; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+  .item { display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 12px; cursor: pointer; }
+  .item:hover { background: #f3f1ed; }
+  .item.sel { background: var(--accent-weak); color: var(--accent); }
+  .item.hidden .nm { color: #a6a9ad; text-decoration: line-through; }
+  .item .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .eye { padding: 2px 6px; font-size: 12px; color: var(--muted); }
+
+  #info { right: 12px; top: 12px; width: 230px; padding: 10px 12px; display: none; }
+  #info h2 { font-size: 14px; margin: 0 0 2px; }
+  #info .sub { color: var(--muted); font-size: 11px; margin-bottom: 8px; word-break: break-all; }
+  #info .row { display: grid; grid-template-columns: 52px 1fr; align-items: center; gap: 6px; margin: 4px 0; }
+  #info .row span { color: var(--muted); }
+  #info input { width: 100%; padding: 3px 6px; border: 1px solid var(--line); border-radius: 5px; font: inherit; background: #fff; }
+  #info .xyz { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  #info .btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  #info .btns button { border-color: var(--line); padding: 4px 8px; }
+
+  #help { right: 12px; bottom: 12px; padding: 8px 12px; color: var(--muted); font-size: 12px; max-width: 360px; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  #loading div { background: var(--panel); padding: 14px 20px; border-radius: 10px; border: 1px solid var(--line); pointer-events: auto; text-align: center; }
+  #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #1f2328; color: #fff;
+    padding: 7px 14px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  #drop { position: fixed; inset: 0; background: rgba(47,111,222,.12); border: 3px dashed var(--accent); display: none;
+    place-items: center; font-size: 18px; color: var(--accent); pointer-events: none; }
+
+  @media (max-width: 760px) {
+    #side { top: auto; bottom: 0; left: 0; right: 0; width: auto; height: 34vh; border-radius: 10px 10px 0 0; }
+    #info { top: auto; bottom: calc(34vh + 8px); right: 8px; width: 210px; }
+    #help { display: none; }
+    #toolbar { top: 8px; }
+  }
+</style>
+</head>
+<body>
+<div id="view"></div>
+
+<div id="toolbar" class="panel">
+  <button id="mTranslate" class="on" title="移動 (W)">移動<kbd>W</kbd></button>
+  <button id="mRotate" title="回転 (E)">回転<kbd>E</kbd></button>
+  <div class="sep"></div>
+  <button id="bUndo" title="元に戻す (⌘/Ctrl+Z)" disabled>元に戻す</button>
+  <button id="bRedo" title="やり直す (⌘/Ctrl+Shift+Z)" disabled>やり直す</button>
+  <div class="sep"></div>
+  <button id="vOrbit" title="斜めから全体 (1)">全体<kbd>1</kbd></button>
+  <button id="vTop" title="真上から (2)">真上<kbd>2</kbd></button>
+  <button id="vEye" title="目線 1.6m (3)">目線<kbd>3</kbd></button>
+  <div class="sep"></div>
+  <button id="bSave" title="レイアウトをブラウザに保存">保存</button>
+  <button id="bExportJson" title="レイアウトをJSONで書き出し">JSON</button>
+  <button id="bExportGlb" title="現在の状態をGLBで書き出し">GLB書出</button>
+  <button id="bOpen" title="別のGLBを開く">開く…</button>
+  <button id="bReset" class="danger" title="初期状態に戻す">リセット</button>
+  <input id="file" type="file" accept=".glb,.gltf,.json" hidden>
+</div>
+
+<aside id="side" class="panel">
+  <header>
+    <h1>オブジェクト</h1>
+    <input id="search" type="search" placeholder="検索…">
+  </header>
+  <div class="opts">
+    <label class="chk"><input type="checkbox" id="oSnap" checked> スナップ（5cm / 15°）</label>
+    <label class="chk"><input type="checkbox" id="oHeight"> 高さ方向にも動かす</label>
+    <label class="chk"><input type="checkbox" id="oAllAxes"> 全軸で回転</label>
+    <label class="chk"><input type="checkbox" id="oStruct"> 建物（壁・床など）も選択可</label>
+  </div>
+  <div id="list"></div>
+</aside>
+
+<div id="info" class="panel">
+  <h2 id="iName"></h2>
+  <div class="sub" id="iKey"></div>
+  <div class="row"><span>位置 m</span>
+    <div class="xyz"><input id="iX" type="number" step="0.05" title="X"><input id="iY" type="number" step="0.05" title="Y（高さ）"><input id="iZ" type="number" step="0.05" title="Z"></div></div>
+  <div class="row"><span>向き °</span><input id="iRot" type="number" step="15"></div>
+  <div class="row"><span>サイズ</span><div id="iSize"></div></div>
+  <div class="btns">
+    <button id="bRotL" title="左に90° (Q)">↺ 90°</button>
+    <button id="bRotR" title="右に90° (R)">↻ 90°</button>
+    <button id="bFocus" title="ズーム (F)">ズーム</button>
+    <button id="bDup" title="複製 (⌘/Ctrl+D)">複製</button>
+    <button id="bDel" class="danger" title="削除 (Delete)">削除</button>
+  </div>
+</div>
+
+<div id="help" class="panel">
+  左ドラッグ: 視点回転 ／ 右ドラッグ・Shift+ドラッグ: 平行移動 ／ ホイール: 拡大縮小<br>
+  クリックで選択 → 矢印をドラッグで移動・回転 ／ Delete で削除 ／ Esc で選択解除
+</div>
+<div id="loading"><div id="loadingText">読み込み中…</div></div>
+<div id="toast"></div>
+<div id="drop">GLB ファイルをドロップして開く</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const DEFAULT_MODEL = 'room (5).glb';
+const STORAGE_KEY = 'room-layout:' + DEFAULT_MODEL;
+const $ = (id) => document.getElementById(id);
+
+// ---------- renderer / scene ----------
+const container = $('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeceae6);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb9b2a6, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(3, 8, 4);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.bias = -0.0004;
+scene.add(sun, sun.target);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.02, 200);
+camera.position.set(4, 5, 6);
+
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.enableDamping = true;
+orbit.dampingFactor = 0.12;
+orbit.screenSpacePanning = true;
+orbit.zoomToCursor = true;
+orbit.maxPolarAngle = Math.PI * 0.98;
+orbit.addEventListener('start', () => (camAnim = null));
+
+const tc = new TransformControls(camera, renderer.domElement);
+tc.setSize(0.9);
+scene.add(tc);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const outline = new OutlinePass(new THREE.Vector2(innerWidth, innerHeight), scene, camera);
+outline.edgeStrength = 4; outline.edgeThickness = 1; outline.edgeGlow = 0;
+outline.visibleEdgeColor.set(0x2f6fde); outline.hiddenEdgeColor.set(0x2f6fde);
+composer.addPass(outline);
+composer.addPass(new OutputPass());
+
+// ---------- object grouping ----------
+// The GLB stores most furniture as many loose top-level meshes; bundle them into logical units by name.
+const RULES = [
+  [/^Desk_TROTTEN/, 'デスク TROTTEN', '家具'],
+  [/^RiceCooker/, '炊飯器', '家電'],
+  [/^Rack_/, 'スチールラック', '家具'],
+  [/^AC_Main/, 'エアコン（居室）', '家電'],
+  [/^AC_Kitchen/, 'エアコン（キッチン）', '家電'],
+  [/^Props_Main_(laptop|charging_cable)/, 'ノートPC', '小物'],
+  [/^Props_Kitchen_floor_cushion/, 'フロアクッション', '小物'],
+  [/^Props_/, null, '小物'],
+  [/^Kitchen_hood/, 'レンジフード', 'キッチン'],
+  [/^Kitchen_(gas_stove|stove|burner|pan_support)/, 'ガスコンロ', 'キッチン'],
+  [/^Kitchen_(sink|tap)/, 'シンク・水栓', 'キッチン'],
+  [/^Kitchen_upper/, '吊戸棚', 'キッチン'],
+  [/^Kitchen_/, 'キッチンカウンター', 'キッチン'],
+  [/^Curtain_(Main|Kitchen)_(large|small)/, (m) => `カーテン（${m[1] === 'Main' ? '居室' : 'キッチン'}・${m[2] === 'large' ? '大' : '小'}）`, '窓まわり'],
+  [/^Window_(Main|Kitchen)_(large|small)/, (m) => `窓（${m[1] === 'Main' ? '居室' : 'キッチン'}・${m[2] === 'large' ? '大' : '小'}）`, '建物', true],
+  [/^Door_/, '引き戸', '建物', true],
+  [/^Closet/, 'クローゼット', '建物', true],
+  [/^(Outlet|Aerial)_(Main|Kitchen)/, (m) => `コンセント（${m[2] === 'Main' ? '居室' : 'キッチン'}）`, '建物', true],
+  [/^Ceiling_Kitchen_Light/, '照明', '建物', true],
+  [/^Ceiling/, '天井', '建物', true],
+  [/^Shell_Cutaway_Kitchen_(intercom|water)/, 'インターホン等', '建物', true],
+  [/^Shell_Cutaway/, '手前の壁（カットアウェイ）', '建物', true],
+  [/^Shell_/, '壁', '建物', true],
+  [/^Floor/, '床', '建物', true],
+];
+const ROOT_LABELS = [
+  [/^Chair_MARKUS_(\w)/, (m) => `チェア MARKUS ${m[1]}`, '家具'],
+  [/^Bin_BUNACO_(\w+?)_Root/, (m) => `ゴミ箱（${m[1] === 'Dark' ? 'ダーク' : 'キャラメル'}）`, '小物'],
+  [/^Fridge/, '冷蔵庫', '家電'],
+  [/^Person_(\d+)/, (m) => `人物 ${m[1]}cm（目安）`, '人物'],
+];
+const CATEGORY_ORDER = ['家具', '家電', 'キッチン', '小物', '窓まわり', '人物', 'その他', '建物'];
+const HIDDEN_BY_DEFAULT = new Set(['天井', '手前の壁（カットアウェイ）']);
+
+function classify(name, rules) {
+  for (const [re, label, cat, structural] of rules) {
+    const m = name.match(re);
+    if (!m) continue;
+    const l = typeof label === 'function' ? label(m) : (label ?? name);
+    return { label: l, cat, structural: !!structural };
+  }
+  return null;
+}
+
+let world = null;       // gltf scene
+let units = [];         // { obj, key, label, cat, structural, init:{p,q,v}, cloneOf? }
+let selected = null;
+const undoStack = [], redoStack = [];
+
+function buildUnits(root) {
+  units = [];
+  root.updateMatrixWorld(true);
+  const buckets = new Map();
+  for (const child of [...root.children]) {
+    const name = child.name || 'object';
+    if (child.children.length) {
+      const c = classify(name, ROOT_LABELS) || { label: name.replace(/_Root$|_ROOT$/, ''), cat: 'その他', structural: false };
+      addUnit(child, name, c);
+      continue;
+    }
+    const c = classify(name, RULES) || { label: name.replace(/[._]\d+$/, ''), cat: 'その他', structural: false };
+    const key = c.label;
+    if (!buckets.has(key)) buckets.set(key, { c, members: [] });
+    buckets.get(key).members.push(child);
+  }
+  for (const [key, { c, members }] of buckets) {
+    const box = new THREE.Box3();
+    members.forEach((m) => box.expandByObject(m));
+    const g = new THREE.Group();
+    g.name = key;
+    // Pivot at the bottom centre so rotation spins in place and "Y" reads as floor height.
+    box.getCenter(g.position); g.position.y = box.min.y;
+    root.add(g);
+    g.updateMatrixWorld(true);
+    members.forEach((m) => g.attach(m));
+    addUnit(g, key, c);
+  }
+  units.sort((a, b) => CATEGORY_ORDER.indexOf(a.cat) - CATEGORY_ORDER.indexOf(b.cat) || a.label.localeCompare(b.label, 'ja'));
+  for (const u of units) if (HIDDEN_BY_DEFAULT.has(u.label)) u.obj.visible = false;
+  for (const u of units) u.init = snapshot(u.obj);
+}
+function addUnit(obj, key, c) {
+  const u = { obj, key, label: c.label, cat: c.cat, structural: c.structural };
+  obj.userData.unit = u;
+  units.push(u);
+  return u;
+}
+const snapshot = (o) => ({ p: o.position.clone(), q: o.quaternion.clone(), v: o.visible });
+const applySnap = (o, s) => { o.position.copy(s.p); o.quaternion.copy(s.q); o.visible = s.v; };
+
+// ---------- loading ----------
+const loader = new GLTFLoader();
+function setLoading(text) {
+  $('loading').style.display = text ? 'grid' : 'none';
+  if (text) $('loadingText').innerHTML = text;
+}
+function loadFromUrl(url) {
+  setLoading('読み込み中…');
+  loader.load(url, (g) => onLoaded(g, true), (e) => {
+    if (e.total) setLoading(`読み込み中… ${Math.round(e.loaded / e.total * 100)}%`);
+  }, () => {
+    setLoading(`「${DEFAULT_MODEL}」を読み込めませんでした。<br>ローカルサーバー経由で開くか、<br><button id="pick" style="margin-top:8px;border:1px solid #ccc">GLB を選ぶ…</button>`);
+    $('pick').onclick = () => $('file').click();
+  });
+}
+function loadFromFile(file) {
+  if (/\.json$/i.test(file.name)) { file.text().then((t) => applyLayout(JSON.parse(t), true)); return; }
+  setLoading('読み込み中…');
+  file.arrayBuffer().then((buf) => loader.parse(buf, '', (g) => onLoaded(g, false), (e) => { setLoading(null); toast('読み込みに失敗しました'); console.error(e); }));
+}
+
+function onLoaded(gltf, isDefault) {
+  if (world) { select(null); scene.remove(world); }
+  world = gltf.scene;
+  world.traverse((o) => {
+    if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+  });
+  scene.add(world);
+  buildUnits(world);
+  undoStack.length = redoStack.length = 0;
+  if (isDefault) {
+    try { const s = localStorage.getItem(STORAGE_KEY); if (s) { applyLayout(JSON.parse(s), false); toast('保存したレイアウトを復元しました'); } } catch {}
+  }
+  fitShadow();
+  renderList();
+  updateHistoryButtons();
+  setView('orbit');
+  setLoading(null);
+}
+
+function sceneBox() {
+  const box = new THREE.Box3();
+  for (const u of units) if (!u.structural || u.label === '床' || u.label === '壁') box.expandByObject(u.obj);
+  return box.isEmpty() ? new THREE.Box3().setFromObject(world) : box;
+}
+function fitShadow() {
+  const b = new THREE.Box3().setFromObject(world), c = b.getCenter(new THREE.Vector3()), r = b.getSize(new THREE.Vector3()).length() / 2;
+  sun.target.position.copy(c);
+  sun.position.copy(c).add(new THREE.Vector3(r * 0.6, r * 1.6, r * 0.9));
+  Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.1, far: r * 5 });
+  sun.shadow.camera.updateProjectionMatrix();
+}
+
+// ---------- camera views ----------
+let camAnim = null;
+function flyTo(pos, target, ms = 600) {
+  camAnim = { p0: camera.position.clone(), t0: orbit.target.clone(), p1: pos, t1: target, start: performance.now(), ms };
+}
+function setView(kind) {
+  const b = sceneBox(), c = b.getCenter(new THREE.Vector3()), s = b.getSize(new THREE.Vector3());
+  const r = Math.max(s.x, s.z);
+  if (kind === 'orbit') flyTo(c.clone().add(new THREE.Vector3(r * 0.55, r * 1.0, r * 0.95)), new THREE.Vector3(c.x, b.min.y, c.z));
+  if (kind === 'top') flyTo(new THREE.Vector3(c.x, b.min.y + r * 1.9, c.z + 0.001), new THREE.Vector3(c.x, b.min.y, c.z));
+  if (kind === 'eye') {
+    // Stand inside the main room (falls back to the whole model when that floor is missing).
+    const floor = world.getObjectByName('Floor_underlay_Main');
+    const rb = floor && isShown(floor) ? new THREE.Box3().setFromObject(floor) : b;
+    const rc = rb.getCenter(new THREE.Vector3()), rs = rb.getSize(new THREE.Vector3()), eyeY = rb.min.y + 1.6;
+    flyTo(new THREE.Vector3(rc.x + rs.x * 0.3, eyeY, rc.z + rs.z * 0.3), new THREE.Vector3(rc.x - rs.x * 0.3, eyeY - 0.35, rc.z - rs.z * 0.3));
+  }
+}
+function focusSelected() {
+  if (!selected) return;
+  const b = new THREE.Box3().setFromObject(selected), c = b.getCenter(new THREE.Vector3());
+  const d = Math.max(b.getSize(new THREE.Vector3()).length() * 1.6, 0.8);
+  const dir = camera.position.clone().sub(orbit.target).normalize();
+  flyTo(c.clone().addScaledVector(dir, d), c);
+}
+
+// ---------- selection ----------
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const isShown = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
+function unitOf(o) { for (; o; o = o.parent) if (o.userData.unit) return o.userData.unit; return null; }
+
+function pick(ev) {
+  if (!world) return null;
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const allowStruct = $('oStruct').checked;
+  for (const hit of raycaster.intersectObject(world, true)) {
+    if (!hit.object.isMesh || !isShown(hit.object)) continue;
+    const u = unitOf(hit.object);
+    if (!u) continue;
+    if (u.structural && !allowStruct) {
+      // Let clicks pass through the building shell to the furniture behind it.
+      continue;
+    }
+    return u;
+  }
+  return null;
+}
+
+function select(u) {
+  selected = u ? u.obj : null;
+  if (selected) tc.attach(selected); else tc.detach();
+  outline.selectedObjects = selected ? [selected] : [];
+  updateInfo();
+  document.querySelectorAll('.item').forEach((el) => el.classList.toggle('sel', !!u && el.dataset.idx == units.indexOf(u)));
+  const el = u && document.querySelector(`.item[data-idx="${units.indexOf(u)}"]`);
+  el?.scrollIntoView({ block: 'nearest' });
+}
+
+let downAt = null;
+renderer.domElement.addEventListener('pointerdown', (e) => { downAt = { x: e.clientX, y: e.clientY, b: e.button }; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!downAt || downAt.b !== 0) return;
+  const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 5;
+  downAt = null;
+  if (moved || tc.dragging || tc.axis) return;
+  select(pick(e));
+});
+
+// ---------- transform + history ----------
+let dragBefore = null;
+tc.addEventListener('dragging-changed', (e) => {
+  orbit.enabled = !e.value;
+  if (!selected) return;
+  if (e.value) dragBefore = snapshot(selected);
+  else if (dragBefore) { pushHistory(selected, dragBefore); dragBefore = null; }
+});
+tc.addEventListener('objectChange', updateInfo);
+
+function pushHistory(obj, before, extra = {}) {
+  undoStack.push({ obj, before, after: snapshot(obj), ...extra });
+  redoStack.length = 0;
+  updateHistoryButtons();
+}
+function undo() {
+  const h = undoStack.pop(); if (!h) return;
+  if (h.created) { h.obj.parent.remove(h.obj); units.splice(units.indexOf(h.obj.userData.unit), 1); if (selected === h.obj) select(null); }
+  else applySnap(h.obj, h.before);
+  redoStack.push(h); afterHistory();
+}
+function redo() {
+  const h = redoStack.pop(); if (!h) return;
+  if (h.created) { h.parentRef.add(h.obj); units.push(h.obj.userData.unit); }
+  else applySnap(h.obj, h.after);
+  undoStack.push(h); afterHistory();
+}
+function afterHistory() {
+  if (selected && !isShown(selected)) select(null);
+  updateHistoryButtons(); renderList(); updateInfo();
+}
+function updateHistoryButtons() { $('bUndo').disabled = !undoStack.length; $('bRedo').disabled = !redoStack.length; }
+
+function setMode(mode) {
+  tc.setMode(mode);
+  $('mTranslate').classList.toggle('on', mode === 'translate');
+  $('mRotate').classList.toggle('on', mode === 'rotate');
+  applyAxisOptions();
+}
+function applyAxisOptions() {
+  const snap = $('oSnap').checked;
+  tc.setTranslationSnap(snap ? 0.05 : null);
+  tc.setRotationSnap(snap ? THREE.MathUtils.degToRad(15) : null);
+  if (tc.mode === 'translate') { tc.showX = tc.showZ = true; tc.showY = $('oHeight').checked; }
+  else { const all = $('oAllAxes').checked; tc.showY = true; tc.showX = tc.showZ = all; }
+  tc.space = tc.mode === 'rotate' && !$('oAllAxes').checked ? 'world' : 'local';
+}
+
+function rotateSelected(deg) {
+  if (!selected) return;
+  const before = snapshot(selected);
+  selected.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(deg));
+  pushHistory(selected, before); updateInfo();
+}
+function nudge(dx, dz) {
+  if (!selected) return;
+  const before = snapshot(selected);
+  // Arrow keys move relative to the view direction, projected onto the floor.
+  const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.y = 0;
+  if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1); fwd.normalize();
+  const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0));
+  const step = 0.05;
+  selected.position.addScaledVector(right, dx * step).addScaledVector(fwd, dz * step);
+  pushHistory(selected, before); updateInfo();
+}
+function deleteSelected() {
+  if (!selected) return;
+  const u = selected.userData.unit, before = snapshot(selected);
+  selected.visible = false;
+  pushHistory(selected, before);
+  select(null); renderList();
+  toast(`「${u.label}」を削除しました（元に戻す / 一覧の目のアイコンで復元）`);
+}
+function setVisible(u, v) {
+  const before = snapshot(u.obj);
+  u.obj.visible = v;
+  pushHistory(u.obj, before);
+  if (!v && selected === u.obj) select(null);
+  renderList();
+}
+let cloneCount = 0;
+function duplicateSelected() {
+  if (!selected) return;
+  const src = selected.userData.unit;
+  const obj = selected.clone(true);
+  obj.traverse((o) => { if (o !== obj) delete o.userData.unit; });
+  const u = { obj, key: `${src.cloneOf || src.key}#${++cloneCount}`, label: `${src.label} (コピー)`, cat: src.cat, structural: src.structural, cloneOf: src.cloneOf || src.key };
+  obj.userData = { unit: u };
+  obj.position.x += 0.3; obj.position.z += 0.3;
+  selected.parent.add(obj);
+  u.init = snapshot(obj);
+  units.push(u);
+  undoStack.push({ obj, created: true, parentRef: obj.parent, before: u.init, after: u.init });
+  redoStack.length = 0; updateHistoryButtons();
+  renderList(); select(u);
+}
+
+// ---------- side list ----------
+function renderList() {
+  const q = $('search').value.trim().toLowerCase();
+  const list = $('list');
+  list.innerHTML = '';
+  let lastCat = null;
+  units.forEach((u, i) => {
+    if (q && !(u.label.toLowerCase().includes(q) || u.key.toLowerCase().includes(q))) return;
+    if (u.cat !== lastCat) {
+      lastCat = u.cat;
+      const t = document.createElement('div'); t.className = 'grp-title'; t.textContent = u.cat; list.appendChild(t);
+    }
+    const el = document.createElement('div');
+    el.className = 'item' + (u.obj.visible ? '' : ' hidden') + (selected === u.obj ? ' sel' : '');
+    el.dataset.idx = i;
+    el.innerHTML = `<span class="nm"></span><button class="eye" title="表示／非表示">${u.obj.visible ? '表示' : '非表示'}</button>`;
+    el.querySelector('.nm').textContent = u.label;
+    el.querySelector('.eye').onclick = (e) => { e.stopPropagation(); setVisible(u, !u.obj.visible); };
+    el.onclick = () => { if (!u.obj.visible) setVisible(u, true); select(u); };
+    el.ondblclick = () => { select(u); focusSelected(); };
+    list.appendChild(el);
+  });
+}
+$('search').addEventListener('input', renderList);
+
+// ---------- info panel ----------
+const r2 = (v) => Math.round(v * 100) / 100;
+function updateInfo() {
+  const box = $('info');
+  if (!selected) { box.style.display = 'none'; return; }
+  const u = selected.userData.unit;
+  box.style.display = 'block';
+  $('iName').textContent = u.label;
+  $('iKey').textContent = u.cloneOf ? `${u.cloneOf} のコピー` : u.key;
+  const p = selected.position;
+  for (const [id, v] of [['iX', p.x], ['iY', p.y], ['iZ', p.z]]) if (document.activeElement !== $(id)) $(id).value = r2(v);
+  const yaw = new THREE.Euler().setFromQuaternion(selected.quaternion, 'YXZ').y;
+  if (document.activeElement !== $('iRot')) $('iRot').value = Math.round(((THREE.MathUtils.radToDeg(yaw) % 360) + 360) % 360);
+  // Size in the object's own frame, so it stays stable while rotating.
+  const inv = selected.matrixWorld.clone().invert(), lb = new THREE.Box3();
+  selected.updateMatrixWorld(true);
+  selected.traverse((o) => {
+    if (!o.isMesh) return;
+    o.geometry.boundingBox || o.geometry.computeBoundingBox();
+    lb.union(o.geometry.boundingBox.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld)));
+  });
+  const s = lb.getSize(new THREE.Vector3());
+  $('iSize').textContent = `幅${Math.round(s.x * 100)} × 奥${Math.round(s.z * 100)} × 高${Math.round(s.y * 100)} cm`;
+}
+for (const id of ['iX', 'iY', 'iZ']) $(id).addEventListener('change', () => {
+  if (!selected) return;
+  const before = snapshot(selected);
+  selected.position.set(+$('iX').value, +$('iY').value, +$('iZ').value);
+  pushHistory(selected, before);
+});
+$('iRot').addEventListener('change', () => {
+  if (!selected) return;
+  const before = snapshot(selected);
+  const e = new THREE.Euler().setFromQuaternion(selected.quaternion, 'YXZ');
+  e.y = THREE.MathUtils.degToRad(+$('iRot').value);
+  selected.quaternion.setFromEuler(e);
+  pushHistory(selected, before); updateInfo();
+});
+
+// ---------- layout persistence ----------
+function layoutJson() {
+  return {
+    model: DEFAULT_MODEL, version: 1,
+    units: units.map((u) => ({
+      key: u.key, cloneOf: u.cloneOf, label: u.label, visible: u.obj.visible,
+      position: u.obj.position.toArray().map((v) => +v.toFixed(4)),
+      quaternion: u.obj.quaternion.toArray().map((v) => +v.toFixed(5)),
+    })),
+  };
+}
+function applyLayout(data, record) {
+  const byKey = new Map(units.map((u) => [u.key, u]));
+  for (const e of data.units || []) {
+    let u = byKey.get(e.key);
+    if (!u && e.cloneOf && byKey.get(e.cloneOf)) {
+      const src = byKey.get(e.cloneOf);
+      const obj = src.obj.clone(true);
+      obj.traverse((o) => { if (o !== obj) delete o.userData.unit; });
+      u = { obj, key: e.key, label: e.label || `${src.label} (コピー)`, cat: src.cat, structural: src.structural, cloneOf: e.cloneOf };
+      obj.userData = { unit: u };
+      src.obj.parent.add(obj);
+      units.push(u); byKey.set(e.key, u);
+      u.init = snapshot(obj);
+      cloneCount = Math.max(cloneCount, +(e.key.split('#')[1] || 0));
+    }
+    if (!u) continue;
+    u.obj.position.fromArray(e.position); u.obj.quaternion.fromArray(e.quaternion); u.obj.visible = e.visible;
+  }
+  if (record) { undoStack.length = redoStack.length = 0; updateHistoryButtons(); toast('レイアウトを読み込みました'); }
+  renderList(); select(null);
+}
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+$('bSave').onclick = () => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutJson())); toast('このブラウザにレイアウトを保存しました'); }
+  catch { toast('保存できませんでした（ブラウザの設定を確認してください）'); }
+};
+$('bExportJson').onclick = () => download(new Blob([JSON.stringify(layoutJson(), null, 1)], { type: 'application/json' }), 'room-layout.json');
+$('bExportGlb').onclick = () => {
+  toast('GLB を書き出しています…');
+  select(null);
+  // Exclude hidden units from the exported file.
+  new GLTFExporter().parse(world, (buf) => download(new Blob([buf], { type: 'model/gltf-binary' }), 'room-edited.glb'),
+    (err) => { console.error(err); toast('書き出しに失敗しました'); }, { binary: true, onlyVisible: true });
+};
+$('bReset').onclick = () => {
+  if (!world) return;
+  for (const u of [...units]) if (u.cloneOf) { u.obj.parent.remove(u.obj); units.splice(units.indexOf(u), 1); }
+  for (const u of units) applySnap(u.obj, u.init);
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  undoStack.length = redoStack.length = 0;
+  select(null); renderList(); updateHistoryButtons(); toast('初期状態に戻しました');
+};
+$('bOpen').onclick = () => $('file').click();
+$('file').onchange = (e) => { const f = e.target.files[0]; if (f) loadFromFile(f); e.target.value = ''; };
+
+// drag & drop a GLB or layout JSON
+addEventListener('dragover', (e) => { e.preventDefault(); $('drop').style.display = 'grid'; });
+addEventListener('dragleave', (e) => { if (!e.relatedTarget) $('drop').style.display = 'none'; });
+addEventListener('drop', (e) => { e.preventDefault(); $('drop').style.display = 'none'; const f = e.dataTransfer.files[0]; if (f) loadFromFile(f); });
+
+// ---------- toolbar / keys ----------
+$('mTranslate').onclick = () => setMode('translate');
+$('mRotate').onclick = () => setMode('rotate');
+$('bUndo').onclick = undo; $('bRedo').onclick = redo;
+$('vOrbit').onclick = () => setView('orbit'); $('vTop').onclick = () => setView('top'); $('vEye').onclick = () => setView('eye');
+$('bRotL').onclick = () => rotateSelected(90); $('bRotR').onclick = () => rotateSelected(-90);
+$('bFocus').onclick = focusSelected; $('bDel').onclick = deleteSelected; $('bDup').onclick = duplicateSelected;
+for (const id of ['oSnap', 'oHeight', 'oAllAxes']) $(id).onchange = applyAxisOptions;
+$('oStruct').onchange = () => { if (!$('oStruct').checked && selected?.userData.unit.structural) select(null); };
+
+addEventListener('keydown', (e) => {
+  if (e.target.matches?.('input')) return;
+  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && k === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && k === 'd') { e.preventDefault(); duplicateSelected(); return; }
+  if (mod) return;
+  switch (e.key) {
+    case 'w': case 'W': setMode('translate'); break;
+    case 'e': case 'E': setMode('rotate'); break;
+    case 'q': case 'Q': rotateSelected(90); break;
+    case 'r': case 'R': rotateSelected(-90); break;
+    case 'f': case 'F': focusSelected(); break;
+    case '1': setView('orbit'); break;
+    case '2': setView('top'); break;
+    case '3': setView('eye'); break;
+    case 'Delete': case 'Backspace': e.preventDefault(); deleteSelected(); break;
+    case 'Escape': select(null); break;
+    case 'ArrowLeft': e.preventDefault(); nudge(-1, 0); break;
+    case 'ArrowRight': e.preventDefault(); nudge(1, 0); break;
+    case 'ArrowUp': e.preventDefault(); nudge(0, 1); break;
+    case 'ArrowDown': e.preventDefault(); nudge(0, -1); break;
+  }
+});
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.style.opacity = 1;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.opacity = 0), 2600);
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+});
+
+// ---------- loop ----------
+const ease = (t) => 1 - Math.pow(1 - t, 3);
+renderer.setAnimationLoop(() => {
+  if (camAnim) {
+    const t = Math.min((performance.now() - camAnim.start) / camAnim.ms, 1), k = ease(t);
+    camera.position.lerpVectors(camAnim.p0, camAnim.p1, k);
+    orbit.target.lerpVectors(camAnim.t0, camAnim.t1, k);
+    if (t >= 1) camAnim = null;
+  }
+  orbit.update();
+  composer.render();
+});
+
+setMode('translate');
+loadFromUrl(encodeURI(DEFAULT_MODEL));
+</script>
+</body>
+</html>
